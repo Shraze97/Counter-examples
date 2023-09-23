@@ -6,27 +6,52 @@ set_option autoImplicit true
 
 noncomputable section
 
-open Function Set Filter Topology
+open Function Set Filter Topology    
 
 universe u v w
 
-instance ParticularPointTopology : TopologicalSpace Prop :=
-  sorry
-theorem my_lemma :
-    ∀ {x y ε : ℝ}, 0 < ε → ε ≤ 1 → |x| < ε → |y| < ε → |x * y| < ε := by
-  intro x y ε epos ele1 xlt ylt
-  calc
-    |x * y| = |x| * |y| := by 
-      rw [abs_mul]
-    _ ≤ |x| * ε := by 
-      apply mul_le_mul
-      sorry
-      sorry
-      sorry
-      sorry
-    _ < 1 * ε := sorry
-    _ = ε := sorry
+def FiniteParticularPointTopology{α : Type u}[Fintype α ](p : α ) : TopologicalSpace α  where
+  IsOpen X:= p ∈ X ∨ X = ∅
+  isOpen_univ := 
+    by
+      simp only [mem_univ, univ_eq_empty_iff, true_or]
+  isOpen_inter := by
+    intro s t hs ht
+    simp only [mem_inter_iff]
+    cases hs with
+      | inl hp => 
+        cases ht with
+          | inl hq => 
+            left
+            exact ⟨hp,hq⟩
+          | inr hq => 
+            right
+            rw [hq]
+            simp only [inter_empty]
+      | inr hp =>
+        right
+        rw [hp]
+        simp only [empty_inter]
+  isOpen_sUnion := by 
+    intro S hS
+    by_cases hSempty : ⋃₀S = ∅
+    · simp only [hSempty, mem_empty_iff_false, or_true]
+    · simp only [mem_sUnion,hSempty,exists_prop,or_false]
+      push_neg at hSempty
+      rw[← Set.nonempty_iff_ne_empty] at hSempty
+      set x := hSempty.some with hxdef
+      have hx : x ∈ ⋃₀S := Set.Nonempty.some_mem hSempty 
+      rw[Set.mem_sUnion] at hx
+      cases hx with 
+        | intro t ht => 
+          use t 
+          have hnt : t.Nonempty := Set.nonempty_of_mem ht.2
+          simp at hS
+          exact ⟨ht.1, Or.resolve_right (hS t ht.1) (Set.nonempty_iff_ne_empty.mp hnt)⟩ 
+          
 
+      
+#check Set.Nonempty.ne_empty
 example (f : ℝ → ℝ) (h : Monotone f) : ∀ {a b}, a ≤ b → f a ≤ f b :=
   @h
 
@@ -129,3 +154,19 @@ example (u : ℕ → ℝ) (x₀ : ℝ) :
   have : atTop.HasBasis (fun _ : ℕ ↦ True) Ici := atTop_basis
   rw [this.tendsto_iff (nhds_basis_Ioo_pos x₀)]
   simp
+
+example (P Q : ℕ → Prop) (hP : ∀ᶠ n in atTop, P n) (hQ : ∀ᶠ n in atTop, Q n) :
+    ∀ᶠ n in atTop, P n ∧ Q n :=
+  hP.and hQ
+
+example (u v : ℕ → ℝ) (h : ∀ᶠ n in atTop, u n = v n) (x₀ : ℝ) :
+    Tendsto u atTop (𝓝 x₀) ↔ Tendsto v atTop (𝓝 x₀) :=
+  tendsto_congr' h
+
+example (u v : ℕ → ℝ) (h : u =ᶠ[atTop] v) (x₀ : ℝ) :
+    Tendsto u atTop (𝓝 x₀) ↔ Tendsto v atTop (𝓝 x₀) :=
+  tendsto_congr' h
+
+#check eventually_of_forall
+#check Eventually.mono
+#check Eventually.and
