@@ -50,14 +50,11 @@ def FiniteParticularPointTopology_mk{α : Type u}[Fintype α ](p : α ) : Topolo
           exact ⟨ht.1, Or.resolve_right (hS t ht.1) (Set.nonempty_iff_ne_empty.mp hnt)⟩ 
           
 
-class FiniteParticularPointTopology (α : Type u)(p : α)[t : TopologicalSpace α][Fintype α] where
-  topology_eq : t = FiniteParticularPointTopology_mk p
-
 section FiniteParticularPointTopology
-variable (α : Type u)[t :TopologicalSpace α][f : Fintype α](p : α)[t1: FiniteParticularPointTopology α p]
+variable (α : Type u)[f : Fintype α][t :TopologicalSpace α](p : α)(topology_eq : t = FiniteParticularPointTopology_mk p)
 
 theorem FPT_open_iff {X : Set α} : IsOpen X ↔ p ∈ X ∨ X = ∅ := by
-  rw [t1.topology_eq]
+  rw [topology_eq]
   exact Iff.rfl
 
 instance FPT_T₀ : T0Space α := by 
@@ -67,6 +64,7 @@ instance FPT_T₀ : T0Space α := by
     by_cases h : (x = p) ∨ (y = p); 
     · wlog hp : x = p
       apply this α p 
+      apply topology_eq
       have hinsep : Inseparable y x:= Inseparable.symm hxy 
       apply hinsep
       apply Ne.symm ha
@@ -76,7 +74,7 @@ instance FPT_T₀ : T0Space α := by
       let s : Set α := {p}
       have hsdef : s = {p} := by rfl
       have hs : IsOpen s := by
-        rw[FPT_open_iff α p ]
+        rw[FPT_open_iff α p topology_eq ]
         left
         exact rfl 
       apply ha
@@ -91,7 +89,7 @@ instance FPT_T₀ : T0Space α := by
       let s : Set α := {p,x}
       have hsdef : s = {p,x} := by rfl
       have hs : IsOpen s := by
-        rw[FPT_open_iff α p ]
+        rw[FPT_open_iff α p topology_eq]
         left
         simp only [mem_singleton_iff, mem_insert_iff, true_or]
       have hx : x ∈ s := by
@@ -103,8 +101,9 @@ instance FPT_T₀ : T0Space α := by
       rw [hsdef] at hy
       simp only [mem_singleton_iff, mem_insert_iff] at hy  
       exact (Or.resolve_left hy h.2).symm
-      
-  end FiniteParticularPointTopology
+
+end FiniteParticularPointTopology
+
 
 example (f : ℝ → ℝ) (h : Monotone f) : ∀ {a b}, a ≤ b → f a ≤ f b :=
   @h
