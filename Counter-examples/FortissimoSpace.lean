@@ -44,7 +44,7 @@ def FortissiomoSpace_mk{α : Type u}(p : α) : TopologicalSpace α where
     · left 
       assumption
     · right 
-      simp at hp
+      simp only [mem_compl_iff, mem_sUnion, not_exists, not_and, not_forall, not_not, exists_prop] at hp 
       cases hp with 
       | intro t ht =>
         have hsc : Set.Countable tᶜ :=by
