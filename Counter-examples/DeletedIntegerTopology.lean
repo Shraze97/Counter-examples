@@ -88,3 +88,12 @@ def filter_gen (θ : ℝ)(z : ℚ+) : Filter ℚ+
 
 def DeletedIntegerTopology_mk (θ : ℝ)(hθ : Irrational θ) : TopologicalSpace ℚ+ :=
   TopologicalSpace.mkOfNhds (filter_gen θ)
+
+section DeletedIntegerTopology
+
+variable (θ : ℝ)(hθ : Irrational θ)[t : TopologicalSpace ℚ+](topology_eq : t = DeletedIntegerTopology_mk θ hθ)
+
+
+
+
+end DeletedIntegerTopology
