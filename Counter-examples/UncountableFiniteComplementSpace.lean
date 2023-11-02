@@ -33,7 +33,6 @@ def UFCS_mk {α : Type u}(hα : ¬ (Countable α ) ) : TopologicalSpace α where
         right
         rw[hsn]
         simp only [empty_inter]
-        
   isOpen_sUnion := by 
     simp only
     intro s hs
@@ -85,3 +84,8 @@ instance UFCS_T₁ : T1Space α := by
     simp only [mem_compl_iff, mem_singleton_iff, not_true, not_false_eq_true]
   exact ⟨U, hUopen, hx, hy⟩
     
+  theorem UFCS_not_T2 : ¬ T2Space α := by 
+    rw[t2Space_iff]
+    push_neg 
+    sorry 
+

@@ -102,4 +102,9 @@ instance FPT_T₀ : T0Space α := by
       simp only [mem_singleton_iff, mem_insert_iff] at hy  
       exact (Or.resolve_left hy h.2).symm
 
+theorem FPT_not_T₁ : ¬ T1Space α := by
+  rw[t1Space_iff_exists_open]
+  push_neg
+  
+  sorry
 end FiniteParticularPointTopology
