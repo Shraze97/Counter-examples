@@ -142,4 +142,5 @@ theorem FPT_not_T₁ : ¬ T1Space α := by
       exact Or.resolve_right hU hnU
 
 
+
 end FiniteParticularPointTopology
