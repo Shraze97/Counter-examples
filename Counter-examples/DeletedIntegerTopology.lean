@@ -10,7 +10,7 @@ open Function Set Filter Topology TopologicalSpace
 
 universe u v w
 
-
+@[ext]
 structure UpperHalfRationals where
   x : ℚ
   y : ℚ
@@ -112,13 +112,46 @@ lemma purenhsdit (θ : ℝ): pure ≤ filter_gen θ := by
   rw[filter_gen] at hnz
   simp at hnz
   match hnz with
-    | ⟨ε,hnε,hε⟩ =>
+    | ⟨ε,hnε,_⟩ =>
       apply Set.mem_of_subset_of_mem hnε
       rw[nhs_dit]
       simp only [singleton_union, mem_union, mem_insert_iff, true_or]
 
-lemma nhs_dit_subs (θ : ℝ)(ε : ℝ)(p : ℝ)(a : ℚ+)(hay : a.y = 0)(hinq : |a.x - p| < ε ) : ∃ ε₂ : ℝ , nhs_dit θ ε₂ a ⊆ B ε p ∧ ε₂ > 0  := by
-  sorry
+lemma nhs_dit_subs (θ : ℝ)(ε : ℝ)(p : ℝ)(a : ℚ+)(hay : a.y = 0)(hinq : |a.x - p| < ε )(hε : ε > 0 ) : ∃ ε₂ : ℝ , nhs_dit θ ε₂ a ⊆ B ε p ∧ ε₂ > 0  := by
+  by_cases hap : a.x - p = 0
+  · use ε
+    rw[xaxisnhs θ ε a hay]
+    have hpa : p = a.x := by
+      linarith
+    rw[←hpa]
+    constructor
+    triv
+    repeat assumption
+  · set r : ℝ := |a.x - p| with hr
+    set ε₂ := (ε - r)/2  with hε₂
+    use ε₂
+    constructor
+    rw[xaxisnhs θ ε₂ a hay]
+    rw[B,B]
+    simp only [Real.norm_eq_abs, setOf_subset_setOf, and_imp]
+    intro z hz h
+    rw[← hr] at hz
+    constructor
+    have hzp : |z.x - p| ≤ |z.x - a.x| + |a.x - p| := by
+      norm_num
+      have hzpeq : z.x - p = (z.x - a.x) + (a.x - p) := by
+        linarith
+      rw[hzpeq]
+      apply abs_add
+    have hεr : ε > (ε + r)/2 := by
+      linarith
+    have hεrmod : |↑z.x - a.x| + |a.x - p| < (ε - r)/2 + r := by
+      norm_num
+      rw[← hr]
+      exact hz
+    linarith
+    assumption
+    repeat linarith
 
 theorem nhds_dit_filter_gen (θ : ℝ)(hθ : Irrational θ)(z : ℚ+) : @nhds ℚ+ (DeletedIntegerTopology_mk θ hθ) z = filter_gen θ z:= by
   apply nhds_mkOfNhds
@@ -146,14 +179,30 @@ theorem nhds_dit_filter_gen (θ : ℝ)(hθ : Irrational θ)(z : ℚ+) : @nhds �
         cases hl with
         | inl hll =>
           rw[hll]
-
-          sorry
+          use ε
         | inr hlr =>
-          sorry
+          rw[B] at hlr
+          simp only [Real.norm_eq_abs, mem_setOf_eq] at hlr
+          have lem : ∃ ε₂ : ℝ , nhs_dit θ ε₂ a' ⊆ B ε (↑a.x - ↑a.y / θ) ∧ ε₂ > 0 := nhs_dit_subs θ ε (a.x - a.y / θ) a' hlr.2 hlr.1 hε
+          match lem with
+          | ⟨ε₂,hε₂⟩ =>
+            use ε₂
+            constructor
+            trans
+            exact hsε
+            rw[ht,nhs_dit]
+            trans
+            any_goals exact hε₂.1
+            intro x hx
+            simp only [singleton_union, mem_union, mem_insert_iff]
+            left
+            right
+            assumption
+            exact hε₂.2
       | inr hr =>
         rw[B] at hr
         simp only [Real.norm_eq_abs, mem_setOf_eq] at hr
-        have lem : ∃ ε₂ : ℝ , nhs_dit θ ε₂ a' ⊆ B ε (↑a.x + ↑a.y / θ) ∧ ε₂ > 0 := nhs_dit_subs θ ε (a.x + a.y / θ) a' hr.2 hr.1
+        have lem : ∃ ε₂ : ℝ , nhs_dit θ ε₂ a' ⊆ B ε (↑a.x + ↑a.y / θ) ∧ ε₂ > 0 := nhs_dit_subs θ ε (a.x + a.y / θ) a' hr.2 hr.1 hε
         match lem with
           | ⟨ε₂,hε₂⟩ =>
             use ε₂
@@ -166,16 +215,92 @@ theorem nhds_dit_filter_gen (θ : ℝ)(hθ : Irrational θ)(z : ℚ+) : @nhds �
             simp only [singleton_union, subset_union_right]
             exact hε₂.2
 
-
-
-
-
-
 section DeletedIntegerTopology
+
 
 variable (θ : ℝ)(hθ : Irrational θ)[t : TopologicalSpace ℚ+](topology_eq : t = DeletedIntegerTopology_mk θ hθ)
 
+theorem DIT_nhs_iff (z : ℚ+)(s : Set ℚ+) : s ∈ @nhds ℚ+ t z ↔ ∃ ε : ℝ , s ⊇ nhs_dit θ ε z ∧ ε > 0 := by
+  rw[topology_eq]
+  rw[ nhds_dit_filter_gen θ hθ z]
+  rw[filter_gen]
+  simp only [gt_iff_lt, Filter.mem_mk, mem_setOf_eq]
+
+lemma B_dijoint_ball_construct (z₁ : ℝ)(z₂ : ℝ)(hz1z2 : z₁ ≠ z₂) : ∃ ε₁ ε₂ : ℝ , (B (ε₁) z₁ ∩ B (ε₂) z₂ = ∅) ∧ (ε₁ > 0) ∧ (ε₂ > 0) := by
+  set ε₁ := |z₁ - z₂|/3 with hε₁
+  use ε₁, ε₁
+  have hz : |z₁ - z₂| > 0 := by
+    simp[hz1z2]
+    by_contra lem
+    apply hz1z2
+    linarith
+  constructor
+  rw[B,B]
+  simp only [Real.norm_eq_abs]
+  by_contra h
+  push_neg at h
+  rw[← nonempty_iff_ne_empty, nonempty_def] at h
+  match h with
+  |⟨x,hx⟩  =>
+    simp at hx
+    match hx with
+    | ⟨⟨hax,_⟩,⟨hbx,_⟩⟩ =>
+    have hxz : |z₁ - z₂| ≤ |z₁ - x.x| + |x.x - z₂| := by
+      norm_num
+      have hzpeq : z₁ - z₂ = (z₁ - x.x) + (x.x - z₂) := by
+        linarith
+      rw[hzpeq]
+      apply abs_add
+    have hmodxz : |x.x - z₁| = |z₁ - x.x| := by
+      apply abs_sub_comm
+    have hε₁ε₂ : |z₁ - x.x| + |x.x - z₂| < ε₁ + ε₁ := by
+      rw[←hmodxz,hε₁]
+      linarith
+    have hab : |z₁ - z₂| < ε₁ + ε₁ := by
+      linarith
+    rw[hε₁] at hab
+    linarith
+  constructor<;>
+  linarith
+
+lemma distinct_points_z1_z2 (z1 : ℚ+)(z2 : ℚ+)(hlemma : z1 ≠ z2):  z1.x - z1.y/θ ≠ z2.x - z2.y/θ := by
+  by_contra h
+  have hz : z1.x - z2.x = (z1.y - z2.y)/θ :=
+    calc
+      z1.x - z2.x = z1.x - z1.y/θ + z1.y/θ - z2.x := by
+        simp only [sub_add_cancel]
+      _ = z2.x - z2.y/θ + z1.y/θ - z2.x := by
+        rw[h]
+      _ = (z1.y - z2.y)/θ := by
+        ring
+  by_cases hzy_eq : z1.y = z2.y
+  · have hzx : z1.x = z2.x := by
+      rw[hzy_eq] at hz
+      simp only [sub_self, zero_div] at hz
+      norm_cast at hz
+      linarith
+    have hzeq : z1 = z2 := by
+      apply UpperHalfRationals.ext
+      simp only [hzx,hzy_eq]
+      exact hzy_eq
+    exact hlemma hzeq
+  · apply Irrational.ne_rat
+    apply Irrational.rat_div
+    exact hθ
+    have hzy : z1.y - z2.y ≠ 0 := by
+      intro hzya
+      apply hzy_eq
+      linarith
+    exact hzy
+    norm_cast at hz
+    exact hz.symm
+
+
+
 instance DIT_T2 : T2Space ℚ+ := by
+  rw[t2Space_iff_disjoint_nhds]
+  intro x y hxy
+  rw[Filter.disjoint_iff]
   sorry
 
 
