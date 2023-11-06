@@ -125,3 +125,17 @@ theorem DIT_partition_is_partition : Setoid.IsPartition DIT_partition  := by
 
 def DeletedIntegerTopology_mk : TopologicalSpace ℝ+ :=
   TopologicalSpace.generateFrom DIT_partition
+
+section DeletedIntegerTopology
+
+variable [t : TopologicalSpace ℝ+](topology_eq : t = DeletedIntegerTopology_mk)
+
+
+
+instance DIT_not_T0 : ¬ T0Space ℝ+ := by
+  rw[t0Space_iff_inseparable]
+  push_neg
+  use {x := (1: ℝ ) + 0.5 , hn := by norm_num, hx := by sorry }
+  use {x := (1: ℝ ) + 0.3 , hn := by norm_num, hx := by sorry }
+  sorry
+end DeletedIntegerTopology
