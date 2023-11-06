@@ -9,5 +9,3 @@ noncomputable section
 open Function Set Filter Topology
 
 universe u v w
-
- 
