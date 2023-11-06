@@ -60,4 +60,4 @@ def FortissiomoSpace_mk{α : Type u}(p : α) : TopologicalSpace α where
           exact ⟨ht.1, hx⟩
         exact Set.Countable.mono hst hsc
 
-section Fortissiomo_Space
+section FortissiomoSpace
