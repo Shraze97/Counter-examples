@@ -18,7 +18,7 @@ structure DeletedIntegerSpace where
 notation "ℝ+" => DeletedIntegerSpace
 
 def modified_Ioo(b : ℕ) : Set ℝ+ :=
-  {a : ℝ+ | a.1 ∈ Set.Ioo (b : ℝ) (b+1 : ℝ )  }
+  {a : ℝ+ | a.1 ∈ Set.Ioo (b : ℝ) (b + 1 : ℝ )  }
 
 def DIT_partition : Set (Set ℝ+) :=
   {S | ∃ (a : ℕ) , S = modified_Ioo a}
@@ -36,6 +36,20 @@ lemma pointfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x: ℝ ) + 0.5 ) ≠ (y : ℝ)
   zify
   rw[this]
   simp only [Int.mul_emod_left]
+
+lemma twentyfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x : ℝ ) + 0.25) ≠ (y : ℝ) := by
+  norm_num
+  field_simp
+  intros y h
+  have : 1 = ((y : ℝ) - (x : ℝ)) * 2*2 := by
+    linarith
+  apply Nat.not_even_one
+  norm_cast at this
+  rw[Nat.even_iff]
+  zify
+  rw[this]
+  simp only [Int.mul_emod_left]
+
 
 lemma x_plus_one_gt_zero(x : ℕ) : (x : ℝ) + 0.5 >  0 := by
   norm_num
@@ -57,8 +71,6 @@ lemma floor_cast_aux_2(r : ℝ+): Int.toNat ⌊r.x⌋ = Int.floor (r.x) := by
 lemma floor_cast_aux(r: ℝ+): @Nat.cast ℝ Real.natCast  (Int.toNat (Int.floor (r.x)))  =  Int.floor (r.x):= by
   norm_cast
   rw[floor_cast_aux_2 r]
-
-
 
 theorem DIT_partition_is_partition : Setoid.IsPartition DIT_partition  := by
   rw[Setoid.IsPartition]
@@ -123,6 +135,9 @@ theorem DIT_partition_is_partition : Setoid.IsPartition DIT_partition  := by
     rw[hra]
     assumption
 
+
+
+
 def DeletedIntegerTopology_mk : TopologicalSpace ℝ+ :=
   TopologicalSpace.generateFrom DIT_partition
 
@@ -135,7 +150,63 @@ variable [t : TopologicalSpace ℝ+](topology_eq : t = DeletedIntegerTopology_mk
 instance DIT_not_T0 : ¬ T0Space ℝ+ := by
   rw[t0Space_iff_inseparable]
   push_neg
-  use {x := (1: ℝ ) + 0.5 , hn := by norm_num, hx := by sorry }
-  use {x := (1: ℝ ) + 0.3 , hn := by norm_num, hx := by sorry }
+  use {x := (2: ℝ ) + 0.5 , hn := by norm_num, hx := by exact pointfive_plus_x 2}
+  use {x := (2: ℝ ) + 0.25 , hn := by norm_num, hx := by exact twentyfive_plus_x 2}
+  rw[inseparable_iff_forall_open]
+  constructor
+  intros S hS
   sorry
+  by_contra ha
+  simp only [DeletedIntegerSpace.mk.injEq, add_right_inj] at ha
+  norm_num at ha
+
 end DeletedIntegerTopology
+
+
+lemma finite_intersection_of_partition(α : Type u) (c : Set (Set α))(hc : Setoid.IsPartition c )(hcnon : c.Nontrivial) : c ∪ ∅  = ((fun (f: Set (Set α)) => ⋂₀ f) '' {f | Set.Finite f ∧ f ⊆ c}) := by
+  ext S
+  constructor
+  intro hSc
+  rw[Set.mem_image]
+  by_cases hSnonempty : S ≠ ∅
+  set f : Set (Set α) := {S} with hf
+  use f
+  simp only [mem_setOf_eq, finite_singleton, singleton_subset_iff, true_and, sInter_singleton, and_true]
+  simp at hSc
+  assumption
+  push_neg at hSnonempty
+  rw[Set.nontrivial_iff_pair_subset] at hcnon
+  simp at hcnon
+  match hcnon with
+  | ⟨x,y,hxy,hxyhab⟩ =>
+    set a : Set (Set α) := {x,y} with ha
+    use a
+    simp only [mem_singleton_iff, mem_setOf_eq, finite_singleton, Finite.insert, true_and, sInter_insert,
+      sInter_singleton]
+    constructor
+    rwa[← ha]
+    rw[hSnonempty,← Set.disjoint_iff_inter_eq_empty]
+    have lem : c.PairwiseDisjoint id:= Setoid.IsPartition.pairwiseDisjoint hc
+    rw[Set.PairwiseDisjoint,Set.Pairwise] at lem
+    have hx : (x ∈ c)∧ (y ∈ c) := by
+      constructor
+      all_goals rw[ha] at hxyhab
+      all_goals rw[←singleton_subset_iff]
+      all_goals trans
+      any_goals exact hxyhab
+      simp only [mem_singleton_iff, singleton_subset_iff, mem_insert_iff, true_or]
+      simp only [mem_singleton_iff, subset_insert]
+    specialize lem hx.1 hx.2 hxy
+    rw[onFun_apply] at lem
+    simp only [id_eq] at lem
+    exact lem
+  intro hS
+  simp at hS
+  match hS with
+  |⟨x, ⟨⟨hxfin,hxc⟩ ,hx⟩⟩ =>
+  by_cases hnum : (Set.Finite.toFinset hxfin).card ≤ 2
+  · simp only at hnum
+    sorry
+
+  push_neg at hnum
+  sorry

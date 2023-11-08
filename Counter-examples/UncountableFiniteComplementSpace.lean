@@ -60,7 +60,7 @@ def UFCS_mk {α : Type u}(hα : ¬ (Countable α ) ) : TopologicalSpace α where
         use t
         exact ⟨ht.1, hx⟩
 
-section UncountableFiniteComplementSpace
+section UncountableFiniteComplementTopology
 variable (α : Type u)[t : TopologicalSpace α](hα : ¬ (Countable α )) (topology_eq : t = UFCS_mk hα)
 
 theorem UFCS_open_iff{X : Set α} : IsOpen X ↔ Set.Finite Xᶜ ∨ X = ∅ := by
@@ -139,3 +139,5 @@ theorem UFCS_not_T2 : ¬ T2Space α := by
         apply Finite.countable (hUcVc)
       rw[countable_univ_iff] at hUcVcuniv
       exact hα  hUcVcuniv
+
+end UncountableFiniteComplementTopology
