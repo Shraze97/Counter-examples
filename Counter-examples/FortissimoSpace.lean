@@ -61,3 +61,15 @@ def FortissiomoSpace_mk{α : Type u}(p : α) : TopologicalSpace α where
         exact Set.Countable.mono hst hsc
 
 section FortissiomoSpace
+
+variable{α : Type u}(p : α)(hcount : ¬ Countable α)[t : TopologicalSpace α](topology_eq : t = FortissiomoSpace_mk p)
+
+theorem FS_open_iff : IsOpen X = (p ∈ Xᶜ  ∨ Set.Countable Xᶜ) := by
+  rw[topology_eq]
+  rfl
+
+instance FS_T₅ : T5Space α := by
+
+  sorry
+
+end FortissiomoSpace

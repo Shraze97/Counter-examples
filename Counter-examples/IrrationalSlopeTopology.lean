@@ -348,7 +348,7 @@ instance IST_T₂ : T2Space ℚ+ := by
   rw[t2Space_iff_disjoint_nhds]
   intro z1 z2 hz1z2
   rw[Filter.disjoint_iff]
-
+  
   sorry
 
 

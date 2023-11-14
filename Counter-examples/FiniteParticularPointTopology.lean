@@ -40,7 +40,7 @@ def FiniteParticularPointTopology_mk{α : Type u}[Fintype α ](p : α ) : Topolo
     · simp only [mem_sUnion,hSempty,exists_prop,or_false]
       push_neg at hSempty
       rw[← Set.nonempty_iff_ne_empty] at hSempty
-      set x := hSempty.some with hxdef
+      let x := hSempty.some
       have hx : x ∈ ⋃₀S := Set.Nonempty.some_mem hSempty
       rw[Set.mem_sUnion] at hx
       cases hx with
