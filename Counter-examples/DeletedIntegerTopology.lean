@@ -23,6 +23,29 @@ def modified_Ioo(b : ℕ) : Set ℝ+ :=
 def DIT_partition : Set (Set ℝ+) :=
   {S | ∃ (a : ℕ) , S = modified_Ioo a}
 
+def DIT_indexed_partition : ℕ → Set ℝ+ :=
+  λ a => modified_Ioo a
+
+lemma DIT_partition_equiv_indexed_partition : DIT_partition = Set.range DIT_indexed_partition := by
+  ext S
+  constructor
+  · intro hS
+    simp only [mem_range,DIT_indexed_partition]
+    rw[DIT_partition,mem_setOf_eq] at hS
+    match hS with
+    | ⟨a,ha⟩ =>
+    use a
+    rw[ha]
+  · intro hS
+    simp only [mem_range,DIT_indexed_partition] at hS
+    rw[DIT_partition,mem_setOf_eq] 
+    match hS with
+    | ⟨a,ha⟩ =>
+    use a
+    rw[ha]
+
+
+
 lemma pointfive_plus_x(x : ℕ) : ∀ y : ℕ , ((x: ℝ ) + 0.5 ) ≠ (y : ℝ) := by
   norm_num
   field_simp
@@ -67,7 +90,7 @@ lemma floor_cast_aux_2(r : ℝ+): Int.toNat ⌊r.x⌋ = Int.floor (r.x) := by
   rw[Int.floor_nonneg]
   apply le_of_lt
   apply r.hn
-
+--I want to construct this map f' : Set ℝ+ → ℕ
 lemma floor_cast_aux(r: ℝ+): @Nat.cast ℝ Real.natCast  (Int.toNat (Int.floor (r.x)))  =  Int.floor (r.x):= by
   norm_cast
   rw[floor_cast_aux_2 r]
@@ -139,7 +162,7 @@ theorem DIT_partition_is_partition : Setoid.IsPartition DIT_partition  := by
 def DeletedIntegerTopology_mk : TopologicalSpace ℝ+ :=
   TopologicalSpace.generateFrom (DIT_partition)
 
-lemma aux_insertion(α : Type u)(w : Set α)(y : Set α)(a : Set (Set α ))(hmain : {y,w} ⊆   a): @Subset (Set (Set α)) instHasSubsetSet {w} (a) := by
+lemma aux_insertion(α : Type u)(w : Set α)(y : Set α)(a : Set (Set α ))(hmain : {y,w} ⊆ a): @Subset (Set (Set α)) instHasSubsetSet {w} (a) := by
     trans
     swap
     exact hmain
@@ -201,6 +224,7 @@ lemma Card_case_2 (α : Type u)[DECα : DecidableEq (Set α)](c : Set (Set α))(
   right
   simp only [mem_singleton_iff]
   apply IsPartition_intersection α w y c hc hxc.1 hxc.2 hyw
+
 
 
 lemma finite_intersection_of_partition(α : Type u) (c : Set (Set α))(hc : Setoid.IsPartition c )(hcnon : c.Nontrivial) : c ∪{univ}∪ {∅}  = ((fun (f: Set (Set α)) => ⋂₀ f) '' {f | Set.Finite f ∧ f ⊆ (c ) }) := by
@@ -308,6 +332,21 @@ lemma finite_intersection_of_partition(α : Type u) (c : Set (Set α))(hc : Seto
   rw[hx] at hsinter_sub
   simp only [subset_empty_iff] at hsinter_sub
   simp only [hsinter_sub, true_or]
+
+def f : @Elem (Set ℝ+) (range DIT_indexed_partition) → ℕ := λ x => by
+  rw[range] at x
+  simp only [coe_setOf] at x 
+  match x.2 with 
+  | ⟨a,ha⟩ =>
+  sorry
+
+def f_representative(a : ℕ) : @Elem ℝ+ (modified_Ioo a) → ℕ := a
+
+
+lemma DIT_countable : Set.Countable DIT_partition := by 
+  rw[Set.countable_iff_exists_injective]
+  
+  sorry
 
 section DeletedIntegerTopology
 
