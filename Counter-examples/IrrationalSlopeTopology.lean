@@ -239,7 +239,7 @@ lemma B_dijoint_ball_construct (z₁ : ℝ)(z₂ : ℝ)(hz1z2 : z₁ ≠ z₂) :
   simp only [Real.norm_eq_abs]
   by_contra h
   push_neg at h
-  rw[← nonempty_iff_ne_empty, nonempty_def] at h
+  rw[ nonempty_def] at h
   match h with
   |⟨x,hx⟩  =>
     simp at hx
