@@ -38,7 +38,7 @@ lemma DIT_partition_equiv_indexed_partition : DIT_partition = Set.range DIT_inde
     rw[ha]
   · intro hS
     simp only [mem_range,DIT_indexed_partition] at hS
-    rw[DIT_partition,mem_setOf_eq] 
+    rw[DIT_partition,mem_setOf_eq]
     match hS with
     | ⟨a,ha⟩ =>
     use a
@@ -204,7 +204,6 @@ lemma IsPartition_intersection (α : Type u)(x : Set α)(y : Set α )(c : Set (S
 
 lemma Card_case_2 (α : Type u)[DECα : DecidableEq (Set α)](c : Set (Set α))(hc : Setoid.IsPartition c )(S : Set α)(x : Set (Set α) )(hxfin : @Set.Finite (Set α) x)(hrr : @Finset.card (Set α) (Finite.toFinset hxfin) = 2)(hxc : x ⊆  c)(hx : ⋂₀ x = S) : S ∈ c ∪ {univ} ∪ {∅}:= by
   rw[Finset.card_eq_two] at hrr
-  rename_i hrr'
   match hrr with
   | ⟨w,y ,hyw, hy ⟩ =>
   haveI hfx: Fintype x := Set.Finite.fintype hxfin
@@ -334,18 +333,14 @@ lemma finite_intersection_of_partition(α : Type u) (c : Set (Set α))(hc : Seto
   simp only [hsinter_sub, true_or]
 
 def f : @Elem (Set ℝ+) (range DIT_indexed_partition) → ℕ := λ x => by
-  rw[range] at x
-  simp only [coe_setOf] at x 
-  match x.2 with 
-  | ⟨a,ha⟩ =>
   sorry
 
 def f_representative(a : ℕ) : @Elem ℝ+ (modified_Ioo a) → ℕ := a
 
 
-lemma DIT_countable : Set.Countable DIT_partition := by 
+lemma DIT_countable : Set.Countable DIT_partition := by
   rw[Set.countable_iff_exists_injective]
-  
+
   sorry
 
 section DeletedIntegerTopology
@@ -390,16 +385,16 @@ lemma DIT_not_T0_aux(x1 : ℝ+)(x2 : ℝ+)(S : Set ℝ+)(a : Set ℝ+)(ha : a = 
   rw[TopologicalSpace.IsTopologicalBasis.isOpen_iff (DIT.TopologicalBasis topology_eq)] at hS
   specialize hS x1 hSx1
   match hS with
-  |⟨t, htdit,htx1, hts⟩ =>
-  by_cases t = univ
+  |⟨t1, htdit,htx1, hts⟩ =>
+  by_cases h : t1 = univ
   rw[h,Set.univ_subset_iff] at hts
   rw[hts]
   simp only [mem_univ]
-  have htnonempty : t ≠ ∅ := by
+  have htnonempty : t1 ≠ ∅ := by
     intro hemp
     rw[hemp] at htx1
     simp only [mem_empty_iff_false] at htx1
-  replace htdit : t ∈ DIT_partition := by
+  replace htdit : t1 ∈ DIT_partition := by
     simp only [union_singleton, mem_insert_iff] at htdit
     apply Or.resolve_left (Or.resolve_left htdit htnonempty) h
   have dita : a ∈ DIT_partition := by
@@ -407,12 +402,12 @@ lemma DIT_not_T0_aux(x1 : ℝ+)(x2 : ℝ+)(S : Set ℝ+)(a : Set ℝ+)(ha : a = 
     simp only [mem_setOf_eq]
     use 2
   apply Set.mem_of_subset_of_mem hts
-  have hat : a = t := by
+  have hat : a = t1 := by
     by_contra hat
-    have hx1ta : x1 ∈ t ∩ a := Set.mem_inter htx1 hx1a
+    have hx1ta : x1 ∈ t1 ∩ a := Set.mem_inter htx1 hx1a
     apply Set.nonempty_iff_ne_empty.mp
     apply Set.nonempty_def.mpr ⟨ x1, hx1ta⟩
-    apply IsPartition_intersection ℝ+ t a DIT_partition DIT_partition_is_partition htdit dita (Ne.symm hat)
+    apply IsPartition_intersection ℝ+ t1 a DIT_partition DIT_partition_is_partition htdit dita (Ne.symm hat)
   rw[← hat]
   assumption
 
