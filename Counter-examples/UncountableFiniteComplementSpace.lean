@@ -41,7 +41,6 @@ def UFCS_mk {α : Type u}(hα : ¬ (Countable α ) ) : TopologicalSpace α where
       exact h
     left
     push_neg at h
-    rw[← Set.nonempty_iff_ne_empty] at h
     set x := h.some with hxdef
     have hx : x ∈ ⋃₀ s := Set.Nonempty.some_mem h
     rw[Set.mem_sUnion] at hx
